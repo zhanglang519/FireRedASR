@@ -1,30 +1,39 @@
-# FireRedASR
+<div align="center">
+<h1>FireRedASR: Open-Source Industrial-Grade
+<br>
+Speech Recognition Models</h1>
 
-[[Blog]](https://fireredteam.github.io/demos/firered_asr/)
-[[Paper]]()
+Kai-Tuo Xu · Feng-Long Xie · Tang Xu · Yao Hu
+
+</div>
+
+[[Paper]](https://arxiv.org/pdf/2501.14350)
 [[Model]](https://huggingface.co/fireredteam)
+[[Blog]](https://fireredteam.github.io/demos/firered_asr/)
 
-FireRedASR, a family of large-scale automatic speech recognition (ASR) models for Mandarin, designed to meet diverse requirements in superior performance and optimal efficiency across various applications. FireRedASR comprises two variants:
+FireRedASR is a family of large-scale automatic speech recognition (ASR) models supporting Mandarin, Chinese dialects and English, while also offering singing lyrics recognition capability, achieving a new state-of-the-art on public Mandarin ASR benchmarks.
+
+FireRedASR is designed to meet diverse requirements in superior performance and optimal efficiency across various applications. It comprises two variants:
 - FireRedASR-LLM: Designed to achieve state-of-the-art (SOTA) performance and to enable seamless end-to-end speech interaction. It adopts an Encoder-Adapter-LLM framework leveraging large language model (LLM) capabilities.
 - FireRedASR-AED: Designed to balance high performance and computational efficiency and to serve as an effective speech representation module in LLM-based speech models. It utilizes an Attention-based Encoder-Decoder (AED) architecture.
 
 ![Model](/assets/FireRedASR_model.png)
 
 
-## News
-- [2025/01/24] 🔥 We release [techincal report]()(under review at arXiv), [blog](https://fireredteam.github.io/demos/firered_asr/), and [FireRedASR-AED-L](https://huggingface.co/fireredteam/FireRedASR-AED-L/tree/main) model weights.
-- [WIP] We plan to release FireRedASR-LLM-L after the Spring Festival.
+## 🔥 News
+- [2025/01/24] We release [techincal report](https://arxiv.org/pdf/2501.14350), [blog](https://fireredteam.github.io/demos/firered_asr/), and [FireRedASR-AED-L](https://huggingface.co/fireredteam/FireRedASR-AED-L/tree/main) model weights.
+- [WIP] We plan to release FireRedASR-LLM-L and other model sizes after the Spring Festival.
 
-## Setup
+## Usage
+Download model files from [huggingface](https://huggingface.co/fireredteam) and place them in the folder `pretrained_models`
+
+### Setup
 
 ```bash
 $ git clone https://github.com/FireRedTeam/FireRedASR.git
 $ conda create --name fireredasr python=3.10
 $ pip install -r requirements.txt
 ```
-
-## Usage
-Download model files from [huggingface](https://huggingface.co/fireredteam) and place them in the folder `pretrained_models`
 
 ### Quick Start
 ```bash
@@ -33,7 +42,7 @@ $ bash inference_fireredasr_aed.sh
 $ bash inference_fireredasr_llm.sh
 ```
 
-### Commond-line Usage
+### Command-line Usage
 ```bash
 # Setup PATH & PYTHONPATH
 $ export PATH=$PWD/fireredasr/:$PWD/fireredasr/utils/:$PATH
