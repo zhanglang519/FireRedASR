@@ -1,9 +1,9 @@
 <div align="center">
 <h1>FireRedASR: Open-Source Industrial-Grade
 <br>
-Speech Recognition Models</h1>
+Automatic Speech Recognition Models</h1>
 
-Kai-Tuo Xu · Feng-Long Xie · Tang Xu · Yao Hu
+Kai-Tuo Xu · Feng-Long Xie · Xu Tang · Yao Hu
 
 </div>
 
@@ -11,7 +11,15 @@ Kai-Tuo Xu · Feng-Long Xie · Tang Xu · Yao Hu
 [[Model]](https://huggingface.co/fireredteam)
 [[Blog]](https://fireredteam.github.io/demos/firered_asr/)
 
-FireRedASR is a family of large-scale automatic speech recognition (ASR) models supporting Mandarin, Chinese dialects and English, while also offering singing lyrics recognition capability, achieving a new state-of-the-art on public Mandarin ASR benchmarks.
+FireRedASR is a family of open-source industrial-grade automatic speech recognition (ASR) models supporting Mandarin, Chinese dialects and English, achieving a new state-of-the-art (SOTA) on public Mandarin ASR benchmarks, while also offering outstanding singing lyrics recognition capability.
+
+
+## 🔥 News
+- [2025/01/24] We release [techincal report](https://arxiv.org/pdf/2501.14350), [blog](https://fireredteam.github.io/demos/firered_asr/), and [FireRedASR-AED-L](https://huggingface.co/fireredteam/FireRedASR-AED-L/tree/main) model weights.
+- [WIP] We plan to release FireRedASR-LLM-L and other model sizes after the Spring Festival.
+
+
+## Method
 
 FireRedASR is designed to meet diverse requirements in superior performance and optimal efficiency across various applications. It comprises two variants:
 - FireRedASR-LLM: Designed to achieve state-of-the-art (SOTA) performance and to enable seamless end-to-end speech interaction. It adopts an Encoder-Adapter-LLM framework leveraging large language model (LLM) capabilities.
@@ -20,19 +28,51 @@ FireRedASR is designed to meet diverse requirements in superior performance and 
 ![Model](/assets/FireRedASR_model.png)
 
 
-## 🔥 News
-- [2025/01/24] We release [techincal report](https://arxiv.org/pdf/2501.14350), [blog](https://fireredteam.github.io/demos/firered_asr/), and [FireRedASR-AED-L](https://huggingface.co/fireredteam/FireRedASR-AED-L/tree/main) model weights.
-- [WIP] We plan to release FireRedASR-LLM-L and other model sizes after the Spring Festival.
+## Evaluation
+Results are reported in Character Error Rate (CER%) for Chinese and Word Error Rate (WER%) for English.
+
+### Evaluation on Public Mandarin ASR Benchmarks
+| Model            | #Params | aishell1 | aishell2 | ws\_net  | ws\_meeting | Average-4 |
+|:----------------:|:-------:|:--------:|:--------:|:--------:|:-----------:|:---------:|
+| FireRedASR-LLM   | 8.3B | 0.76 | 2.15 | 4.60 | 4.67 | 3.05 |
+| FireRedASR-AED   | 1.1B | 0.55 | 2.52 | 4.88 | 4.76 | 3.18 |
+| Seed-ASR         | 12B+ | 0.68 | 2.27 | 4.66 | 5.69 | 3.33 |
+| Qwen-Audio       | 8.4B | 1.30 | 3.10 | 9.50 | 10.87 | 6.19 |
+| SenseVoice-L     | 1.6B | 2.09 | 3.04 | 6.01 | 6.73 | 4.47 |
+| Whisper-Large-v3 | 1.6B | 5.14 | 4.96 | 10.48 | 18.87 | 9.86 |
+| Paraformer-Large | 0.2B | 1.68 | 2.85 | 6.74 | 6.97 | 4.56 |
+
+`ws` means WenetSpeech.
+
+### Evaluation on Public Chinese Dialect and English ASR Benchmarks
+|Test Set       | KeSpeech | LibriSpeech test-clean | LibriSpeech test-other  |
+| :------------:| :------: | :--------------------: | :----------------------:|
+|FireRedASR-LLM | 3.56 | 1.73 | 3.67 |
+|FireRedASR-AED | 4.48 | 1.93 | 4.44 |
+|Previous SOTA Results | 6.70 | 1.82 | 3.50 |
+
 
 ## Usage
-Download model files from [huggingface](https://huggingface.co/fireredteam) and place them in the folder `pretrained_models`
+Download model files from [huggingface](https://huggingface.co/fireredteam) and place them in the folder `pretrained_models`.
+
 
 ### Setup
-
+Create a Python environment and install dependencies
 ```bash
 $ git clone https://github.com/FireRedTeam/FireRedASR.git
 $ conda create --name fireredasr python=3.10
 $ pip install -r requirements.txt
+```
+
+Set up Linux PATH and PYTHONPATH
+```
+$ export PATH=$PWD/fireredasr/:$PWD/fireredasr/utils/:$PATH
+$ export PYTHONPATH=$PWD/:$PYTHONPATH
+```
+
+Convert audio to 16kHz 16-bit PCM format
+```
+ffmpeg -i input_audio -ar 16000 -ac 1 -acodec pcm_s16le -f wav output.wav
 ```
 
 ### Quick Start
@@ -44,9 +84,6 @@ $ bash inference_fireredasr_llm.sh
 
 ### Command-line Usage
 ```bash
-# Setup PATH & PYTHONPATH
-$ export PATH=$PWD/fireredasr/:$PWD/fireredasr/utils/:$PATH
-$ export PYTHONPATH=$PWD/:$PYTHONPATH
 $ speech2text.py --help
 $ speech2text.py --wav_path examples/wav/BAC009S0764W0121.wav --asr_type "aed" --model_dir pretrained_models/FireRedASR-AED-L
 $ speech2text.py --wav_path examples/wav/BAC009S0764W0121.wav --asr_type "llm" --model_dir pretrained_models/FireRedASR-LLM-L
@@ -65,13 +102,13 @@ results = model.transcribe(
     batch_uttid,
     batch_wav_path,
     {
-    "use_gpu": 1,
-    "beam_size": 3,
-    "nbest": 1,
-    "decode_max_len": 0,
-    "softmax_smoothing": 1.0,
-    "aed_length_penalty": 0.0,
-    "eos_penalty": 1.0
+        "use_gpu": 1,
+        "beam_size": 3,
+        "nbest": 1,
+        "decode_max_len": 0,
+        "softmax_smoothing": 1.0,
+        "aed_length_penalty": 0.0,
+        "eos_penalty": 1.0
     }
 )
 print(results)
@@ -83,17 +120,21 @@ results = model.transcribe(
     batch_uttid,
     batch_wav_path,
     {
-    "use_gpu": 1,
-    "beam_size": 3,
-    "decode_max_len": 0,
-    "decode_min_len": 0,
-    "repetition_penalty": 1.0,
-    "llm_length_penalty": 0.0,
-    "temperature": 1.0
+        "use_gpu": 1,
+        "beam_size": 3,
+        "decode_max_len": 0,
+        "decode_min_len": 0,
+        "repetition_penalty": 1.0,
+        "llm_length_penalty": 0.0,
+        "temperature": 1.0
     }
 )
 print(results)
 ```
+
+### Input Length Limitations
+- FireRedASR-AED supports audio input up to 60s. Input longer than 60s may cause hallucination issues, and input exceeding 200s will trigger positional encoding errors.
+- FireRedASR-LLM supports audio input up to 30s. The behavior for longer input is currently unknown.
 
 
 ## Acknowledgements
