@@ -3,7 +3,7 @@
 <br>
 Automatic Speech Recognition Models</h1>
 
-Kai-Tuo Xu · Feng-Long Xie · Xu Tang · Yao Hu
+[Kai-Tuo Xu](https://github.com/kaituoxu) · [Feng-Long Xie](https://scholar.google.com/citations?user=bi8ExI4AAAAJ&hl=zh-CN&oi=sra) · [Xu Tang](https://scholar.google.com/citations?user=grP24aAAAAAJ&hl=zh-CN&oi=sra) · [Yao Hu](https://scholar.google.com/citations?user=LIu7k7wAAAAJ&hl=zh-CN)
 
 </div>
 
@@ -55,6 +55,8 @@ Results are reported in Character Error Rate (CER%) for Chinese and Word Error R
 ## Usage
 Download model files from [huggingface](https://huggingface.co/fireredteam) and place them in the folder `pretrained_models`.
 
+If you want to use `FireRedASR-LLM-L`, you also need to download [Qwen2-7B-Instruct](https://huggingface.co/Qwen/Qwen2-7B-Instruct) and place it in the folder `pretrained_models`. Then, go to folder `FireRedASR-LLM-L` and run `$ ln -s ../Qwen2-7B-Instruct`
+
 
 ### Setup
 Create a Python environment and install dependencies
@@ -77,7 +79,7 @@ ffmpeg -i input_audio -ar 16000 -ac 1 -acodec pcm_s16le -f wav output.wav
 
 ### Quick Start
 ```bash
-$ cd examples/
+$ cd examples
 $ bash inference_fireredasr_aed.sh
 $ bash inference_fireredasr_llm.sh
 ```
@@ -106,8 +108,8 @@ results = model.transcribe(
         "beam_size": 3,
         "nbest": 1,
         "decode_max_len": 0,
-        "softmax_smoothing": 1.0,
-        "aed_length_penalty": 0.0,
+        "softmax_smoothing": 1.25,
+        "aed_length_penalty": 0.6,
         "eos_penalty": 1.0
     }
 )
@@ -124,13 +126,17 @@ results = model.transcribe(
         "beam_size": 3,
         "decode_max_len": 0,
         "decode_min_len": 0,
-        "repetition_penalty": 1.0,
-        "llm_length_penalty": 0.0,
+        "repetition_penalty": 3.0,
+        "llm_length_penalty": 1.0,
         "temperature": 1.0
     }
 )
 print(results)
 ```
+
+## Usage Tips
+### Batch Beam Search
+- When performing batch beam search with FireRedASR-LLM, please ensure that the input lengths of the utterances are similar. If there are significant differences in utterance lengths, shorter utterances may experience repetition issues. You can either sort your dataset by length or set `batch_size` to 1 to avoid the repetition issue.
 
 ### Input Length Limitations
 - FireRedASR-AED supports audio input up to 60s. Input longer than 60s may cause hallucination issues, and input exceeding 200s will trigger positional encoding errors.
@@ -143,3 +149,14 @@ Thanks to the following open-source works:
 - [icefall/ASR_LLM](https://github.com/k2-fsa/icefall/tree/master/egs/speech_llm/ASR_LLM)
 - [WeNet](https://github.com/wenet-e2e/wenet)
 - [Speech-Transformer](https://github.com/kaituoxu/Speech-Transformer)
+
+
+## Citation
+```bibtex
+@article{xu2025fireredasr,
+  title={FireRedASR: Open-Source Industrial-Grade Mandarin Speech Recognition Models from Encoder-Decoder to LLM Integration},
+  author={Xu, Kai-Tuo and Xie, Feng-Long and Tang, Xu and Hu, Yao},
+  journal={arXiv preprint arXiv:2501.14350},
+  year={2025}
+}
+```

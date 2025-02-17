@@ -20,7 +20,8 @@ class FireRedAsrLlm(nn.Module):
         assert os.path.exists(model_path)
         package = torch.load(model_path, map_location=lambda storage, loc: storage)
         model = FireRedAsrAed.from_args(package["args"])
-        model.load_state_dict(package["model_state_dict"], strict=False)
+        if "model_state_dict" in package:
+            model.load_state_dict(package["model_state_dict"], strict=False)
         encoder = model.encoder
         encoder_dim = encoder.odim
         return encoder, encoder_dim
