@@ -15,8 +15,8 @@ FireRedASR is a family of open-source industrial-grade automatic speech recognit
 
 
 ## 🔥 News
+- [2025/02/17] We release [FireRedASR-LLM-L](https://huggingface.co/fireredteam/FireRedASR-LLM-L/tree/main) model weights.
 - [2025/01/24] We release [techincal report](https://arxiv.org/pdf/2501.14350), [blog](https://fireredteam.github.io/demos/firered_asr/), and [FireRedASR-AED-L](https://huggingface.co/fireredteam/FireRedASR-AED-L/tree/main) model weights.
-- [WIP] We plan to release FireRedASR-LLM-L and other model sizes after the Spring Festival.
 
 
 ## Method
