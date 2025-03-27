@@ -59,26 +59,30 @@ RANK=${RANK:-0}
 echo "WORLD_SIZE: $WORLD_SIZE"
 echo "RANK: $RANK"
 
-# RANK=0 负责拆分数据
+# 当 WORLD_SIZE > 1 时，RANK=0 负责拆分数据
 data_dir="$output/data_split"
-mkdir -p "$data_dir"
-
-if [ "$RANK" -eq 0 ]; then
-    echo "开始拆分数据..."
-    total_lines=$(wc -l < "$wav_scp")
-    lines_per_proc=$(( (total_lines + WORLD_SIZE - 1) / WORLD_SIZE ))
-    split -l $lines_per_proc "$wav_scp" "$data_dir/part_"
-    echo "数据拆分完成"
+if [ "$WORLD_SIZE" -gt 1 ]; then
+    mkdir -p "$data_dir"
+    if [ "$RANK" -eq 0 ]; then
+        echo "开始拆分数据..."
+        total_lines=$(wc -l < "$wav_scp")
+        lines_per_proc=$(( (total_lines + WORLD_SIZE - 1) / WORLD_SIZE ))
+        split -l $lines_per_proc "$wav_scp" "$data_dir/part_"
+        echo "数据拆分完成"
+    fi
+    
+    # 等待RANK=0完成数据拆分，检查所有part_*文件是否生成
+    expected_parts=$(printf "%02x" $((WORLD_SIZE-1)))
+    while [ $(ls "$data_dir" | grep -c "part_..$") -lt $((WORLD_SIZE)) ]; do
+        sleep 1
+    done
+    
+    part_file=$(printf "%s/part_%s" "$data_dir" $(printf "%02x" $RANK))
+else
+    part_file="$wav_scp"
 fi
 
-# 等待RANK=0完成数据拆分，检查所有part_*文件是否生成
-expected_parts=$(printf "%02x" $((WORLD_SIZE-1)))
-while [ $(ls "$data_dir" | grep -c "part_..$") -lt $((WORLD_SIZE)) ]; do
-    sleep 1
-done
-
 # 每个进程处理自己的数据
-part_file=$(printf "%s/part_%s" "$data_dir" $(printf "%02x" $RANK))
 if [ -f "$part_file" ]; then
     echo "进程 $RANK 开始处理 $part_file..."
     export PATH=/opt/FireRedASR/fireredasr/:/opt/FireRedASR/fireredasr/utils/:$PATH
@@ -98,14 +102,16 @@ else
     exit 1
 fi
 
-# RANK=0 合并所有结果
+# RANK=0 合并所有结果（仅在 WORLD_SIZE > 1 时需要等待）
 if [ "$RANK" -eq 0 ]; then
-    echo "等待所有进程完成..."
-    for (( i=0; i<$WORLD_SIZE; i++ )); do
-        while [ ! -f "$output/.done-$i" ]; do
-            sleep 1
+    if [ "$WORLD_SIZE" -gt 1 ]; then
+        echo "等待所有进程完成..."
+        for (( i=0; i<$WORLD_SIZE; i++ )); do
+            while [ ! -f "$output/.done-$i" ]; do
+                sleep 1
+            done
         done
-    done
+    fi
     echo "开始合并结果..."
     cat "$output"/asr_*.txt > "$output/asr.txt"
     echo "所有进程完成，最终结果保存在 $output/asr.txt"
