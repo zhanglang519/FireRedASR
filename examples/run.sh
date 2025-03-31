@@ -26,15 +26,15 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --use_gpu)
-            decode_args="$2"
+            use_gpu="$2"
             shift 2
             ;;
         --batch_size)
-            decode_args="$2"
+            batch_size="$2"
             shift 2
             ;;
         --beam_size)
-            decode_args="$2"
+            beam_size="$2"
             shift 2
             ;;
         *)
