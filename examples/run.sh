@@ -67,17 +67,17 @@ if [ "$WORLD_SIZE" -gt 1 ]; then
         echo "开始拆分数据..."
         total_lines=$(wc -l < "$wav_scp")
         lines_per_proc=$(( (total_lines + WORLD_SIZE - 1) / WORLD_SIZE ))
-        split -l $lines_per_proc "$wav_scp" "$data_dir/part_"
+        # split -l $lines_per_proc "$wav_scp" "$data_dir/part_"
+        split -l $lines_per_proc -d -a 2 "$wav_scp" "$data_dir/part_"  # 使用数字后缀
         echo "数据拆分完成"
     fi
     
     # 等待RANK=0完成数据拆分，检查所有part_*文件是否生成
-    expected_parts=$(printf "%02x" $((WORLD_SIZE-1)))
     while [ $(ls "$data_dir" | grep -c "part_..$") -lt $((WORLD_SIZE)) ]; do
         sleep 1
     done
     
-    part_file=$(printf "%s/part_%s" "$data_dir" $(printf "%02x" $RANK))
+    part_file=$(printf "%s/part_%s" "$data_dir" $(printf "%02d" $RANK))
 else
     part_file="$wav_scp"
 fi
