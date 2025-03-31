@@ -39,7 +39,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         *)
             echo "错误: 未知参数 '$1'"
-            echo "允许的参数: --asr_type, --wav_scp, --output, --decode_args"
+            echo "允许的参数: --asr_type, --wav_scp, --output, --use_gpu --batch_size, --beam_size"
             exit 1
             ;;
     esac
