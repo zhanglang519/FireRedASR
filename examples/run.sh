@@ -1,14 +1,14 @@
 #!/bin/bash
-# beta(关闭gpu开关,--use-gpu 0):
-#vc-test submit --sync --image docker.v2.aispeech.com/hpc-base/ai_base-aps-fireredasr:FireRedASR-v0.0.1-004 --cpu-per-task 32 --mem-per-task 48G --partition pdcpu-test --num-task 2 --project ai-core-aps-FireRedASR --dir /opt/FireRedASR --job FireRedASR-Main-Job --type pytorch --cmd "/opt/FireRedASR/examples/run.sh --output /mnt/lustre/hpc_stor01/home/lang.zhang/data/tmp/FireRedASR/output --asr_type aed --wav_scp /mnt/lustre/hpc_stor01/home/lang.zhang/data/angji_wav/a.scp"
-# prod
-#vc submit --sync --image docker.v2.aispeech.com/hpc-base/ai_base-aps-fireredasr:FireRedASR-v0.0.1-003 --gpu-per-task 1 --cpu-per-task 3 --mem-per-task 10G --partition pdgpu-ezkws --num-task 2 --project ai-core-aps-FireRedASR --dir /opt/FireRedASR --job FireRedASR-Main-Job --type pytorch --cmd "/opt/FireRedASR/examples/run.sh --output /mnt/lustre/hpc_stor01/home/lang.zhang/data/tmp/FireRedASR/output --asr_type aed --wav_scp /mnt/lustre/hpc_stor01/home/lang.zhang/data/angji_wav/a.scp"
+# beta(关闭gpu开关,--use_gpu 0):
+#vc-test submit --sync --image docker.v2.aispeech.com/hpc-base/ai_base-aps-fireredasr:FireRedASR-v0.0.1-004 --cpu-per-task 32 --mem-per-task 48G --partition pdcpu-test --num-task 2 --project ai-core-aps-FireRedASR --dir /opt/FireRedASR --job FireRedASR-Main-Job --type pytorch --cmd "/opt/FireRedASR/examples/run.sh --output /mnt/lustre/hpc_stor01/home/lang.zhang/data/tmp/FireRedASR/output --asr_type aed --wav_scp /mnt/lustre/hpc_stor01/home/lang.zhang/data/angji_wav/a.scp --use_gpu 0"
 
 # 设置默认参数值
 asr_type="aed"
 wav_scp="/opt/FireRedASR/fireredasr/examples/wav.scp"
-decode_args="--batch_size 2 --beam_size 3 --nbest 1 --decode_max_len 0 --softmax_smoothing 1.25 --aed_length_penalty 0.6 --eos_penalty 1.0 --use-gpu 0"
 output=""  # 将output默认设为空，强制用户必须传入
+use_gpu="1"
+batch_size="2"
+beam_size="3"
 
 # 处理传入参数
 while [[ $# -gt 0 ]]; do
@@ -25,7 +25,15 @@ while [[ $# -gt 0 ]]; do
             output="$2"
             shift 2
             ;;
-        --decode_args)
+        --use_gpu)
+            decode_args="$2"
+            shift 2
+            ;;
+        --batch_size)
+            decode_args="$2"
+            shift 2
+            ;;
+        --beam_size)
             decode_args="$2"
             shift 2
             ;;
@@ -36,6 +44,8 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+decode_args="--batch_size $batch_size --beam_size $beam_size --nbest 1 --decode_max_len 0 --softmax_smoothing 1.25 --aed_length_penalty 0.6 --eos_penalty 1.0 --use_gpu $use_gpu"
 
 # 检查output参数是否为空
 if [ -z "$output" ]; then
