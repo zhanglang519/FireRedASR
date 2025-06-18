@@ -75,7 +75,7 @@ if [ -f "$wav_scp" ]; then
     speech2text.py --asr_type "$asr_type" --model_dir "$model_dir" $decode_args --wav_scp "$wav_scp" --output "$output/asr.txt"
 
 else
-    echo "进程 $RANK 未找到对应的数据文件: $part_file"
+    echo "未找到对应的数据文件: $wav_scp"
     exit 1
 fi
 
